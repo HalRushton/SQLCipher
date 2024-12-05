@@ -549,7 +549,7 @@ SQLITE_API int sqlite3_exec(
 **
 ** These bit values are intended for use in the
 ** 3rd parameter to the [sqlite3_open_v2()] interface and
-** in the 4th parameter to the [sqlite3_vfs.xOpen] method.
+** in the 4th parameter to the [sqlite3a_vfs.xOpen] method.
 */
 #define SQLITE_OPEN_READONLY         0x00000001  /* Ok for sqlite3_open_v2() */
 #define SQLITE_OPEN_READWRITE        0x00000002  /* Ok for sqlite3_open_v2() */
@@ -670,7 +670,7 @@ SQLITE_API int sqlite3_exec(
 ** CAPI3REF: OS Interface Open File Handle
 **
 ** An [sqlite3_file] object represents an open file in the 
-** [sqlite3_vfs | OS interface layer].  Individual OS interface
+** [sqlite3a_vfs | OS interface layer].  Individual OS interface
 ** implementations will
 ** want to subclass this object by appending additional fields
 ** for their own use.  The pMethods entry is a pointer to an
@@ -685,17 +685,17 @@ struct sqlite3_file {
 /*
 ** CAPI3REF: OS Interface File Virtual Methods Object
 **
-** Every file opened by the [sqlite3_vfs.xOpen] method populates an
+** Every file opened by the [sqlite3a_vfs.xOpen] method populates an
 ** [sqlite3_file] object (or, more commonly, a subclass of the
 ** [sqlite3_file] object) with a pointer to an instance of this object.
 ** This object defines the methods used to perform various operations
 ** against the open file represented by the [sqlite3_file] object.
 **
-** If the [sqlite3_vfs.xOpen] method sets the sqlite3_file.pMethods element 
+** If the [sqlite3a_vfs.xOpen] method sets the sqlite3_file.pMethods element 
 ** to a non-NULL pointer, then the sqlite3_io_methods.xClose method
-** may be invoked even if the [sqlite3_vfs.xOpen] reported that it failed.  The
-** only way to prevent a call to xClose following a failed [sqlite3_vfs.xOpen]
-** is for the [sqlite3_vfs.xOpen] to set the sqlite3_file.pMethods element
+** may be invoked even if the [sqlite3a_vfs.xOpen] reported that it failed.  The
+** only way to prevent a call to xClose following a failed [sqlite3a_vfs.xOpen]
+** is for the [sqlite3a_vfs.xOpen] to set the sqlite3_file.pMethods element
 ** to NULL.
 **
 ** The flags argument to xSync may be one of [SQLITE_SYNC_NORMAL] or
@@ -948,7 +948,7 @@ struct sqlite3_io_methods {
 ** ^The [SQLITE_FCNTL_VFS_POINTER] opcode finds a pointer to the top-level
 ** [VFSes] currently in use.  ^(The argument X in
 ** sqlite3_file_control(db,SQLITE_FCNTL_VFS_POINTER,X) must be
-** of type "[sqlite3_vfs] **".  This opcodes will set *X
+** of type "[sqlite3a_vfs] **".  This opcodes will set *X
 ** to a pointer to the top-level VFS.)^
 ** ^When there are multiple VFS shims in the stack, this opcode finds the
 ** upper-most shim only.
@@ -1179,7 +1179,7 @@ typedef struct sqlite3_api_routines sqlite3_api_routines;
 /*
 ** CAPI3REF: OS Interface Object
 **
-** An instance of the sqlite3_vfs object defines the interface between
+** An instance of the sqlite3a_vfs object defines the interface between
 ** the SQLite core and the underlying operating system.  The "vfs"
 ** in the name of the object stands for "virtual file system".  See
 ** the [VFS | VFS documentation] for further information.
@@ -1190,10 +1190,10 @@ typedef struct sqlite3_api_routines sqlite3_api_routines;
 ** SQLite [version 3.5.0] on [dateof:3.5.0], then increased to 2
 ** with SQLite [version 3.7.0] on [dateof:3.7.0], and then increased
 ** to 3 with SQLite [version 3.7.6] on [dateof:3.7.6].  Additional fields
-** may be appended to the sqlite3_vfs object and the iVersion value
+** may be appended to the sqlite3a_vfs object and the iVersion value
 ** may increase again in future versions of SQLite.
 ** Note that the structure
-** of the sqlite3_vfs object changes in the transition from
+** of the sqlite3a_vfs object changes in the transition from
 ** SQLite [version 3.5.9] to [version 3.6.0] on [dateof:3.6.0]
 ** and yet the iVersion field was not modified.
 **
@@ -1201,23 +1201,23 @@ typedef struct sqlite3_api_routines sqlite3_api_routines;
 ** structure used by this VFS.  mxPathname is the maximum length of
 ** a pathname in this VFS.
 **
-** Registered sqlite3_vfs objects are kept on a linked list formed by
-** the pNext pointer.  The [sqlite3_vfs_register()]
-** and [sqlite3_vfs_unregister()] interfaces manage this list
-** in a thread-safe way.  The [sqlite3_vfs_find()] interface
+** Registered sqlite3a_vfs objects are kept on a linked list formed by
+** the pNext pointer.  The [sqlite3a_vfs_register()]
+** and [sqlite3a_vfs_unregister()] interfaces manage this list
+** in a thread-safe way.  The [sqlite3a_vfs_find()] interface
 ** searches the list.  Neither the application code nor the VFS
 ** implementation should use the pNext pointer.
 **
-** The pNext field is the only field in the sqlite3_vfs
+** The pNext field is the only field in the sqlite3a_vfs
 ** structure that SQLite will ever modify.  SQLite will only access
 ** or modify this field while holding a particular static mutex.
-** The application should never modify anything within the sqlite3_vfs
+** The application should never modify anything within the sqlite3a_vfs
 ** object once the object has been registered.
 **
 ** The zName field holds the name of the VFS module.  The name must
 ** be unique across all VFS modules.
 **
-** [[sqlite3_vfs.xOpen]]
+** [[sqlite3a_vfs.xOpen]]
 ** ^SQLite guarantees that the zFilename parameter to xOpen
 ** is either a NULL pointer or string obtained
 ** from xFullPathname() with an optional suffix added.
@@ -1295,7 +1295,7 @@ typedef struct sqlite3_api_routines sqlite3_api_routines;
 ** element will be valid after xOpen returns regardless of the success
 ** or failure of the xOpen call.
 **
-** [[sqlite3_vfs.xAccess]]
+** [[sqlite3a_vfs.xAccess]]
 ** ^The flags argument to xAccess() may be [SQLITE_ACCESS_EXISTS]
 ** to test for the existence of a file, or [SQLITE_ACCESS_READWRITE] to
 ** test whether a file is readable and writable, or [SQLITE_ACCESS_READ]
@@ -1339,40 +1339,40 @@ typedef struct sqlite3_api_routines sqlite3_api_routines;
 ** from one release to the next.  Applications must not attempt to access
 ** any of these methods if the iVersion of the VFS is less than 3.
 */
-typedef struct sqlite3_vfs sqlite3_vfs;
+typedef struct sqlite3a_vfs sqlite3a_vfs;
 typedef void (*sqlite3_syscall_ptr)(void);
-struct sqlite3_vfs {
+struct sqlite3a_vfs {
   int iVersion;            /* Structure version number (currently 3) */
   int szOsFile;            /* Size of subclassed sqlite3_file */
   int mxPathname;          /* Maximum file pathname length */
-  sqlite3_vfs *pNext;      /* Next registered VFS */
+  sqlite3a_vfs *pNext;      /* Next registered VFS */
   const char *zName;       /* Name of this virtual file system */
   void *pAppData;          /* Pointer to application-specific data */
-  int (*xOpen)(sqlite3_vfs*, const char *zName, sqlite3_file*,
+  int (*xOpen)(sqlite3a_vfs*, const char *zName, sqlite3_file*,
                int flags, int *pOutFlags);
-  int (*xDelete)(sqlite3_vfs*, const char *zName, int syncDir);
-  int (*xAccess)(sqlite3_vfs*, const char *zName, int flags, int *pResOut);
-  int (*xFullPathname)(sqlite3_vfs*, const char *zName, int nOut, char *zOut);
-  void *(*xDlOpen)(sqlite3_vfs*, const char *zFilename);
-  void (*xDlError)(sqlite3_vfs*, int nByte, char *zErrMsg);
-  void (*(*xDlSym)(sqlite3_vfs*,void*, const char *zSymbol))(void);
-  void (*xDlClose)(sqlite3_vfs*, void*);
-  int (*xRandomness)(sqlite3_vfs*, int nByte, char *zOut);
-  int (*xSleep)(sqlite3_vfs*, int microseconds);
-  int (*xCurrentTime)(sqlite3_vfs*, double*);
-  int (*xGetLastError)(sqlite3_vfs*, int, char *);
+  int (*xDelete)(sqlite3a_vfs*, const char *zName, int syncDir);
+  int (*xAccess)(sqlite3a_vfs*, const char *zName, int flags, int *pResOut);
+  int (*xFullPathname)(sqlite3a_vfs*, const char *zName, int nOut, char *zOut);
+  void *(*xDlOpen)(sqlite3a_vfs*, const char *zFilename);
+  void (*xDlError)(sqlite3a_vfs*, int nByte, char *zErrMsg);
+  void (*(*xDlSym)(sqlite3a_vfs*,void*, const char *zSymbol))(void);
+  void (*xDlClose)(sqlite3a_vfs*, void*);
+  int (*xRandomness)(sqlite3a_vfs*, int nByte, char *zOut);
+  int (*xSleep)(sqlite3a_vfs*, int microseconds);
+  int (*xCurrentTime)(sqlite3a_vfs*, double*);
+  int (*xGetLastError)(sqlite3a_vfs*, int, char *);
   /*
   ** The methods above are in version 1 of the sqlite_vfs object
   ** definition.  Those that follow are added in version 2 or later
   */
-  int (*xCurrentTimeInt64)(sqlite3_vfs*, sqlite3_int64*);
+  int (*xCurrentTimeInt64)(sqlite3a_vfs*, sqlite3_int64*);
   /*
   ** The methods above are in versions 1 and 2 of the sqlite_vfs object.
   ** Those below are for version 3 and greater.
   */
-  int (*xSetSystemCall)(sqlite3_vfs*, const char *zName, sqlite3_syscall_ptr);
-  sqlite3_syscall_ptr (*xGetSystemCall)(sqlite3_vfs*, const char *zName);
-  const char *(*xNextSystemCall)(sqlite3_vfs*, const char *zName);
+  int (*xSetSystemCall)(sqlite3a_vfs*, const char *zName, sqlite3_syscall_ptr);
+  sqlite3_syscall_ptr (*xGetSystemCall)(sqlite3a_vfs*, const char *zName);
+  const char *(*xNextSystemCall)(sqlite3a_vfs*, const char *zName);
   /*
   ** The methods above are in versions 1 through 3 of the sqlite_vfs object.
   ** New fields may be appended in future versions.  The iVersion
@@ -1384,7 +1384,7 @@ struct sqlite3_vfs {
 ** CAPI3REF: Flags for the xAccess VFS method
 **
 ** These integer constants can be used as the third parameter to
-** the xAccess method of an [sqlite3_vfs] object.  They determine
+** the xAccess method of an [sqlite3a_vfs] object.  They determine
 ** what kind of permissions the xAccess method is looking for.
 ** With SQLITE_ACCESS_EXISTS, the xAccess method
 ** simply checks whether the file exists.
@@ -1499,7 +1499,7 @@ struct sqlite3_vfs {
 ** routine undoes the effect of sqlite3_os_init().  Typical tasks
 ** performed by these routines include allocation or deallocation
 ** of static resources, initialization of global variables,
-** setting up a default [sqlite3_vfs] module, or setting up
+** setting up a default [sqlite3a_vfs] module, or setting up
 ** a default configuration using [sqlite3_config()].
 **
 ** The application should never invoke either sqlite3_os_init()
@@ -2830,10 +2830,10 @@ SQLITE_API sqlite3_int64 sqlite3_memory_highwater(int resetFlag);
 ** ^If this routine has not been previously called or if the previous
 ** call had N less than one or a NULL pointer for P, then the PRNG is
 ** seeded using randomness obtained from the xRandomness method of
-** the default [sqlite3_vfs] object.
+** the default [sqlite3a_vfs] object.
 ** ^If the previous call to this routine had an N of 1 or more and a
 ** non-NULL P then the pseudo-randomness is generated
-** internally and without recourse to the [sqlite3_vfs] xRandomness
+** internally and without recourse to the [sqlite3a_vfs] xRandomness
 ** method.
 */
 SQLITE_API void sqlite3_randomness(int N, void *P);
@@ -3234,9 +3234,9 @@ SQLITE_API void sqlite3_progress_handler(sqlite3*, int, int(*)(void*), void*);
 ** participate in [shared cache mode] even if it is enabled.
 **
 ** ^The fourth parameter to sqlite3_open_v2() is the name of the
-** [sqlite3_vfs] object that defines the operating system interface that
+** [sqlite3a_vfs] object that defines the operating system interface that
 ** the new database connection should use.  ^If the fourth parameter is
-** a NULL pointer then the default [sqlite3_vfs] object is used.
+** a NULL pointer then the default [sqlite3a_vfs] object is used.
 **
 ** ^If the filename is ":memory:", then a private, temporary in-memory database
 ** is created for the connection.  ^This in-memory database will vanish when
@@ -5665,7 +5665,7 @@ SQLITE_API void sqlite3_activate_cerod(
 ** requested from the operating system is returned.
 **
 ** ^SQLite implements this interface by calling the xSleep()
-** method of the default [sqlite3_vfs] object.  If the xSleep() method
+** method of the default [sqlite3a_vfs] object.  If the xSleep() method
 ** of the default VFS is not implemented correctly, or not implemented at
 ** all, then the behavior of sqlite3_sleep() may deviate from the description
 ** in the previous paragraphs.
@@ -5677,7 +5677,7 @@ SQLITE_API int sqlite3_sleep(int);
 **
 ** ^(If this global variable is made to point to a string which is
 ** the name of a folder (a.k.a. directory), then all temporary files
-** created by SQLite when using a built-in [sqlite3_vfs | VFS]
+** created by SQLite when using a built-in [sqlite3a_vfs | VFS]
 ** will be placed in that directory.)^  ^If this variable
 ** is a NULL pointer, then SQLite performs a search for an appropriate
 ** temporary file directory.
@@ -5736,7 +5736,7 @@ SQLITE_API SQLITE_EXTERN char *sqlite3_temp_directory;
 ** ^(If this global variable is made to point to a string which is
 ** the name of a folder (a.k.a. directory), then all database files
 ** specified with a relative pathname and created or accessed by
-** SQLite when using a built-in windows [sqlite3_vfs | VFS] will be assumed
+** SQLite when using a built-in windows [sqlite3a_vfs | VFS] will be assumed
 ** to be relative to that directory.)^ ^If this variable is a NULL
 ** pointer, then SQLite assumes that all database files specified
 ** with a relative pathname are relative to the current directory
@@ -6939,20 +6939,20 @@ SQLITE_API int sqlite3_blob_write(sqlite3_blob *, const void *z, int n, int iOff
 /*
 ** CAPI3REF: Virtual File System Objects
 **
-** A virtual filesystem (VFS) is an [sqlite3_vfs] object
+** A virtual filesystem (VFS) is an [sqlite3a_vfs] object
 ** that SQLite uses to interact
 ** with the underlying operating system.  Most SQLite builds come with a
 ** single default VFS that is appropriate for the host computer.
 ** New VFSes can be registered and existing VFSes can be unregistered.
 ** The following interfaces are provided.
 **
-** ^The sqlite3_vfs_find() interface returns a pointer to a VFS given its name.
+** ^The sqlite3a_vfs_find() interface returns a pointer to a VFS given its name.
 ** ^Names are case sensitive.
 ** ^Names are zero-terminated UTF-8 strings.
 ** ^If there is no match, a NULL pointer is returned.
 ** ^If zVfsName is NULL then the default VFS is returned.
 **
-** ^New VFSes are registered with sqlite3_vfs_register().
+** ^New VFSes are registered with sqlite3a_vfs_register().
 ** ^Each new VFS becomes the default VFS if the makeDflt flag is set.
 ** ^The same VFS can be registered multiple times without injury.
 ** ^To make an existing VFS into the default VFS, register it again
@@ -6961,13 +6961,13 @@ SQLITE_API int sqlite3_blob_write(sqlite3_blob *, const void *z, int n, int iOff
 ** VFS is registered with a name that is NULL or an empty string,
 ** then the behavior is undefined.
 **
-** ^Unregister a VFS with the sqlite3_vfs_unregister() interface.
+** ^Unregister a VFS with the sqlite3a_vfs_unregister() interface.
 ** ^(If the default VFS is unregistered, another VFS is chosen as
 ** the default.  The choice for the new VFS is arbitrary.)^
 */
-SQLITE_API sqlite3_vfs *sqlite3_vfs_find(const char *zVfsName);
-SQLITE_API int sqlite3_vfs_register(sqlite3_vfs*, int makeDflt);
-SQLITE_API int sqlite3_vfs_unregister(sqlite3_vfs*);
+SQLITE_API sqlite3a_vfs *sqlite3a_vfs_find(const char *zVfsName);
+SQLITE_API int sqlite3a_vfs_register(sqlite3a_vfs*, int makeDflt);
+SQLITE_API int sqlite3a_vfs_unregister(sqlite3a_vfs*);
 
 /*
 ** CAPI3REF: Mutexes
@@ -7267,7 +7267,7 @@ SQLITE_API sqlite3_mutex *sqlite3_db_mutex(sqlite3*);
 ** [SQLITE_FCNTL_JOURNAL_POINTER] works similarly except that it returns
 ** the [sqlite3_file] object associated with the journal file instead of
 ** the main database.  The [SQLITE_FCNTL_VFS_POINTER] opcode returns
-** a pointer to the underlying [sqlite3_vfs] object for the file.
+** a pointer to the underlying [sqlite3a_vfs] object for the file.
 ** The [SQLITE_FCNTL_DATA_VERSION] returns the data version counter
 ** from the pager.
 **
