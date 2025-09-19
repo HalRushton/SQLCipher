@@ -6405,6 +6405,8 @@ struct sqlite3_module {
   /* The methods above are in versions 1 and 2 of the sqlite_module object.
   ** Those below are for version 3 and greater. */
   int (*xShadowName)(const char*);
+  /* Added for compatibility with newer SQLite: */
+  int (*xIntegrity)(sqlite3_vtab *pVTab, const char *zSchema, sqlite3_value **apArg, int nArg, int *pbOk);
 };
 
 /*
@@ -11493,6 +11495,11 @@ struct Fts5ExtensionApi {
 
   int (*xPhraseFirstColumn)(Fts5Context*, int iPhrase, Fts5PhraseIter*, int*);
   void (*xPhraseNextColumn)(Fts5Context*, Fts5PhraseIter*, int *piCol);
+  /* Added for compatibility with newer SQLite: */
+  int (*xTokenize_v2)(Fts5Context*, const char*, int, void*, int(*)(void*, int, const char*, int, int, int));
+  int (*xColumnLocale)(Fts5Context*, int, const char **, int *);
+  int (*xInstToken)(Fts5Context*, int, int, const char **, int *);
+  int (*xQueryToken)(Fts5Context*, int, int*, int*, int*);
 };
 
 /* 
@@ -11757,6 +11764,9 @@ struct fts5_api {
     fts5_extension_function xFunction,
     void (*xDestroy)(void*)
   );
+  /* Added for compatibility with newer SQLite: */
+  int (*xFindTokenizer_v2)(fts5_api*, const char*, void**, void (**)(void*));
+  int (*xCreateTokenizer_v2)(fts5_api*, const char*, void*, int (*)(void*, const char*, int, Fts5Tokenizer**, char**), void (*)(Fts5Tokenizer*));
 };
 
 /*
